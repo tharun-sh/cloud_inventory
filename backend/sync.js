@@ -3,7 +3,7 @@ const Bill = require("./models/Bill");
 const axios = require("axios");
 const mongoose = require("mongoose");
 
-const atlasUri = process.env.ATLAS_URI;
+const atlasUri = process.env.ATLAS_MONGO_URI;
 let atlasConnection = null;
 
 async function connectAtlas() {
