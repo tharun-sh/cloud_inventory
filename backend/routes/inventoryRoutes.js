@@ -50,7 +50,7 @@ router.put("/update/:name", async (req, res) => {
 });
 
 // Delete a product by name
-router.delete("/delete/:name", async (req, res) => {
+router.delete("/update/:name", async (req, res) => {
   console.log("DELETE /api/inventory/delete - Params:", req.params); // Debug log
   try {
     const deleted = await Product.findOneAndDelete({ name: req.params.name });

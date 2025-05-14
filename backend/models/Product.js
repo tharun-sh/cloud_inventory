@@ -11,6 +11,15 @@ const productSchema = new mongoose.Schema({
     required: true,
     min: 0,
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+    expires: 60 * 60 * 24 * 30, // Auto-delete after 30 days
+  },
+  synced: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model("Product", productSchema);

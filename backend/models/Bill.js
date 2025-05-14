@@ -14,6 +14,15 @@ const billSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+    expires: 60 * 60 * 24 * 30, // Auto-delete after 30 days
+  },
+  synced: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model("Bill", billSchema);
