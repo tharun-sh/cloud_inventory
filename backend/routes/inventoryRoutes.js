@@ -15,9 +15,9 @@ router.get("/", async (req, res) => {
 // Add a product
 router.post("/", async (req, res) => {
   console.log("POST /api/inventory - Body:", req.body); // Debug log
-  const { name, quantity } = req.body;
+  const { name, quantity, price } = req.body;
   try {
-    const newProduct = new Product({ name, quantity });
+    const newProduct = new Product({ name, quantity, price });
     await newProduct.save();
     res.status(201).json(newProduct);
   } catch (err) {
@@ -26,18 +26,18 @@ router.post("/", async (req, res) => {
 });
 
 // Update a product by name
-router.put("/update/:name", async (req, res) => {
+router.put("/:name", async (req, res) => {
   console.log(
     "PUT /api/inventory/update - Params:",
     req.params,
     "Body:",
     req.body
   ); // Debug log
-  const { name, quantity } = req.body;
+  const { name, quantity, price } = req.body;
   try {
     const updated = await Product.findOneAndUpdate(
       { name: req.params.name },
-      { name, quantity },
+      { name, quantity, price },
       { new: true }
     );
     if (!updated) {
@@ -50,7 +50,7 @@ router.put("/update/:name", async (req, res) => {
 });
 
 // Delete a product by name
-router.delete("/update/:name", async (req, res) => {
+router.delete("/:name", async (req, res) => {
   console.log("DELETE /api/inventory/delete - Params:", req.params); // Debug log
   try {
     const deleted = await Product.findOneAndDelete({ name: req.params.name });

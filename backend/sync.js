@@ -1,27 +1,33 @@
 const Product = require("./models/Product");
+const dotenv = require("dotenv");
 const Bill = require("./models/Bill");
-const axios = require("axios");
 const mongoose = require("mongoose");
 
+dotenv.config();
 const atlasUri = process.env.ATLAS_MONGO_URI;
-let atlasConnection = null;
 
+let atlasConnection = null;
 async function connectAtlas() {
   if (!atlasConnection) {
     atlasConnection = await mongoose.createConnection(atlasUri, {
       dbName: "cloudInventory",
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
     });
   }
+  if (atlasConnection && atlasConnection.readyState === 0) {
+    atlasConnection = await mongoose.createConnection(atlasUri, {
+      dbName: "cloudInventory",
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+  }
+  console.log("🌐 Internet available. Syncing to Atlas...");
   return atlasConnection;
 }
 
 async function syncToAtlas() {
   try {
-    // Check internet connection
-    await axios.get("https://www.google.com");
-
-    console.log("🌐 Internet available. Syncing to Atlas...");
-
     const atlasDB = await connectAtlas();
 
     const AtlasProduct = atlasDB.model("Product", Product.schema);
@@ -32,19 +38,21 @@ async function syncToAtlas() {
 
     for (const product of unsyncedProducts) {
       const exists = await AtlasProduct.findOne({ name: product.name });
+      product.synced = true;
       if (exists) {
         exists.quantity = product.quantity;
         await exists.save();
       } else {
         await new AtlasProduct(product.toObject()).save();
       }
-      product.synced = true;
+
       await product.save();
     }
 
     for (const bill of unsyncedBills) {
-      await new AtlasBill(bill.toObject()).save();
       bill.synced = true;
+      await new AtlasBill(bill.toObject()).save();
+
       await bill.save();
     }
 

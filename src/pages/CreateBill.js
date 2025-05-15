@@ -52,7 +52,7 @@ const CreateBill = ({ inventory, addBill }) => {
     addBill({
       productName: product.name,
       quantity: parseInt(quantity),
-      totalPrice: finalPrice,
+      price: finalPrice,
     });
 
     alert("Bill created successfully!");

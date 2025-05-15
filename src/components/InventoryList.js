@@ -5,22 +5,25 @@ const ProductList = ({ inventory, updateProduct, deleteProduct }) => {
   const [editingItem, setEditingItem] = useState(null);
   const [editedName, setEditedName] = useState("");
   const [editedQuantity, setEditedQuantity] = useState("");
+  const [editedPrice, setEditedPrice] = useState("");
 
   const filteredInventory = inventory.filter((item) =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleEditClick = (item) => {
-    setEditingItem(item.name);
+    setEditingItem(item._id); // use _id for unique key
     setEditedName(item.name);
     setEditedQuantity(item.quantity);
+    setEditedPrice(item.price);
   };
 
-  const handleSaveClick = (originalName) => {
+  const handleSaveClick = (productId) => {
     updateProduct({
-      originalName: originalName,
+      _id: productId,
       name: editedName,
       quantity: parseInt(editedQuantity),
+      price: parseFloat(editedPrice),
     });
     setEditingItem(null);
   };
@@ -33,7 +36,6 @@ const ProductList = ({ inventory, updateProduct, deleteProduct }) => {
     <div className="product-list-container">
       <h2>List of Products</h2>
 
-      {/* Search Box */}
       <div className="search-container">
         <label>Search: </label>
         <input
@@ -44,25 +46,23 @@ const ProductList = ({ inventory, updateProduct, deleteProduct }) => {
         />
       </div>
 
-      {/* Product Table */}
       <table className="product-table">
         <thead>
           <tr>
             <th>Product ID</th>
-            <th>Product Name</th>
-            <th>Product Quantity</th>
+            <th>Name</th>
+            <th>Quantity</th>
+            <th>Price (₹)</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {filteredInventory.map((item, index) => (
-            <tr key={index}>
+            <tr key={item._id}>
               <td>{String(index + 1).padStart(5, "0")}</td>
 
-              {/* Editable fields if editing */}
-
               <td>
-                {editingItem === item.name ? (
+                {editingItem === item._id ? (
                   <input
                     className="product-update"
                     type="text"
@@ -75,7 +75,7 @@ const ProductList = ({ inventory, updateProduct, deleteProduct }) => {
               </td>
 
               <td>
-                {editingItem === item.name ? (
+                {editingItem === item._id ? (
                   <input
                     className="quantity-update"
                     type="number"
@@ -88,11 +88,25 @@ const ProductList = ({ inventory, updateProduct, deleteProduct }) => {
               </td>
 
               <td>
+                {editingItem === item._id ? (
+                  <input
+                    className="price-update"
+                    type="number"
+                    step="0.01"
+                    value={editedPrice}
+                    onChange={(e) => setEditedPrice(e.target.value)}
+                  />
+                ) : (
+                  `₹${item.price}`
+                )}
+              </td>
+
+              <td>
                 <div className="action-buttons">
-                  {editingItem === item.name ? (
+                  {editingItem === item._id ? (
                     <button
                       className="save-button"
-                      onClick={() => handleSaveClick(item.name)}
+                      onClick={() => handleSaveClick(item._id)}
                     >
                       Save
                     </button>

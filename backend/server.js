@@ -1,8 +1,8 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const connectDB = require("./db");
-const syncToAtlas = require("./sync"); // 🆕 Import sync logic
+const connectDB = require("./db"); // updated: connects only to local
+const syncToAtlas = require("./sync");
 
 const inventoryRoutes = require("./routes/inventoryRoutes");
 const billRoutes = require("./routes/billRoutes");
@@ -17,13 +17,13 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Connect to MongoDB (Atlas first, fallback to local)
+// Connect to local MongoDB
 connectDB()
   .then(() => {
     console.log("✅ MongoDB connection established.");
 
     // 🕒 Start periodic sync from local to Atlas every 60 seconds
-    setInterval(syncToAtlas, 60 * 1000);
+    setInterval(syncToAtlas, 20 * 1000);
   })
   .catch((err) => {
     console.error("❌ MongoDB connection failed:", err.message);

@@ -15,7 +15,7 @@ router.get("/", async (req, res) => {
 
 // Create a new bill and update inventory
 router.post("/", async (req, res) => {
-  const { productName, quantity } = req.body;
+  const { productName, quantity, price } = req.body;
 
   try {
     const product = await Product.findOne({ name: productName });
@@ -37,7 +37,7 @@ router.post("/", async (req, res) => {
     }
 
     // Create bill
-    const newBill = new Bill({ productName, quantity });
+    const newBill = new Bill({ productName, quantity, price });
     await newBill.save();
 
     res.status(201).json(newBill);

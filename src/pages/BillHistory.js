@@ -8,8 +8,8 @@ const BillHistory = ({ bills }) => {
         <ul>
           {bills.map((bill, index) => (
             <li key={index}>
-              {bill.productName} | Quantity: {bill.quantity} | Total: ₹{" "}
-              {bill.totalPrice}
+              {bill.productName} | Quantity: {bill.quantity} | Total: ₹
+              {bill.price}
             </li>
           ))}
         </ul>

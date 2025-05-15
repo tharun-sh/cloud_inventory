@@ -44,19 +44,20 @@ function App() {
   // ✏️ Update product
   const updateProduct = async (updatedProduct) => {
     try {
-      const product = inventory.find(
-        (item) => item.name === updatedProduct.originalName
+      const res = await axios.put(
+        `http://localhost:5000/api/inventory/${updatedProduct.name}`,
+        {
+          name: updatedProduct.name,
+          quantity: updatedProduct.quantity,
+          price: updatedProduct.price,
+        }
       );
 
-      if (!product) return;
-
-      const res = await axios.put(`${API_BASE}/inventory/${product._id}`, {
-        name: updatedProduct.name,
-        quantity: updatedProduct.quantity,
-      });
-
-      setInventory((prev) =>
-        prev.map((item) => (item._id === product._id ? res.data : item))
+      // Update local state with backend response
+      setInventory((prevInventory) =>
+        prevInventory.map((item) =>
+          item._id === updatedProduct._id ? res.data : item
+        )
       );
     } catch (err) {
       console.error("Failed to update product:", err.message);
@@ -69,7 +70,7 @@ function App() {
       const product = inventory.find((item) => item.name === productName);
       if (!product) return;
 
-      await axios.delete(`${API_BASE}/inventory/${product._id}`);
+      await axios.delete(`${API_BASE}/inventory/${productName}`);
 
       setInventory((prev) => prev.filter((item) => item._id !== product._id));
     } catch (err) {
@@ -97,17 +98,6 @@ function App() {
         .filter((item) => item.quantity > 0);
 
       setInventory(updatedInventory);
-
-      // Update product in DB
-      const productToUpdate = inventory.find(
-        (p) => p.name === bill.productName
-      );
-      if (productToUpdate) {
-        await axios.put(`${API_BASE}/inventory/${productToUpdate._id}`, {
-          name: productToUpdate.name,
-          quantity: productToUpdate.quantity - bill.quantity,
-        });
-      }
     } catch (err) {
       console.error("Failed to add bill:", err.message);
     }
