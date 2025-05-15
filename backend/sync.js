@@ -8,21 +8,27 @@ const atlasUri = process.env.ATLAS_MONGO_URI;
 
 let atlasConnection = null;
 async function connectAtlas() {
-  if (!atlasConnection) {
-    atlasConnection = await mongoose.createConnection(atlasUri, {
-      dbName: "cloudInventory",
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+  try {
+    if (!atlasConnection) {
+      atlasConnection = await mongoose.createConnection(atlasUri, {
+        dbName: "cloudInventory",
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      });
+    }
+    if (atlasConnection && atlasConnection.readyState === 0) {
+      atlasConnection = await mongoose.createConnection(atlasUri, {
+        dbName: "cloudInventory",
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      });
+    }
+    console.log("🌐 Internet available. Syncing to Atlas...");
+  } catch (error) {
+    console.error("❌ Atlas MongoDB connection failed:", error.message);
+    atlasConnection = null;
   }
-  if (atlasConnection && atlasConnection.readyState === 0) {
-    atlasConnection = await mongoose.createConnection(atlasUri, {
-      dbName: "cloudInventory",
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-  }
-  console.log("🌐 Internet available. Syncing to Atlas...");
+
   return atlasConnection;
 }
 
@@ -30,14 +36,21 @@ async function syncToAtlas() {
   try {
     const atlasDB = await connectAtlas();
 
+    if (!atlasDB) {
+      return;
+    }
+
     const AtlasProduct = atlasDB.model("Product", Product.schema);
+
     const AtlasBill = atlasDB.model("Bill", Bill.schema);
 
     const unsyncedProducts = await Product.find({ synced: false });
+
     const unsyncedBills = await Bill.find({ synced: false });
 
     for (const product of unsyncedProducts) {
       const exists = await AtlasProduct.findOne({ name: product.name });
+
       product.synced = true;
       if (exists) {
         exists.quantity = product.quantity;
